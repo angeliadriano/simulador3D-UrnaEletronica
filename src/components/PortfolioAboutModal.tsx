@@ -48,7 +48,7 @@ export const PortfolioAboutModal: React.FC = () => {
           <div className="bg-[#030d22]/90 border border-amber-400/30 rounded-xl p-3 flex items-start gap-2.5 text-[11px] leading-relaxed text-blue-200">
             <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
             <p>
-              <strong className="text-amber-300">Nota Legal & Educativa:</strong> Este projeto é uma simulação 3D independente desenvolvida exclusivamente para fins educacionais, artísticos e de demonstração tecnológica (WebGL/React). Não possui filiação, patrocínio ou vínculo com o Tribunal Superior Eleitoral (TSE) ou com a Justiça Eleitoral brasileira.
+              <strong className="text-amber-300">Nota Legal & Educativa:</strong> Este projeto é uma simulação 3D independente desenvolvida exclusivamente para fins educacionais, artísticos e de demonstração tecnológica. Não possui filiação, patrocínio ou vínculo com o Tribunal Superior Eleitoral (TSE) ou com a Justiça Eleitoral brasileira.
             </p>
           </div>
 
@@ -68,8 +68,8 @@ export const PortfolioAboutModal: React.FC = () => {
             </ul>
           </div>
 
-          {/* Atalhos do Teclado Físico */}
-          <div>
+          {/* Atalhos do Teclado Físico (visível apenas em Notebook ou Computador) */}
+          <div className="hidden md:block">
             <h3 className="text-xs font-bold uppercase tracking-wider text-[#ffdf00] mb-2.5 flex items-center gap-1.5">
               <Keyboard className="w-4 h-4 text-[#4ade80]" />
               Sincronia com Teclado Físico (PC / Notebook)

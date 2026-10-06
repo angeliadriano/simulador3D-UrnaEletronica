@@ -29,15 +29,23 @@ const CameraRig: React.FC<CameraRigProps> = ({ controlsRef }) => {
     const aspect = width / Math.max(1, height);
     const isPortrait = aspect < 0.85;
     const isDesktopWithDrawer = width >= 1024 && isDrawerOpen;
-    const portraitScale = isPortrait ? Math.min(1.9, 0.92 / Math.max(0.42, aspect)) : 1;
+
+    // A Urna tem 6.9 unidades de largura (de -3.45 a +3.45).
+    // Para caber inteira no celular com margens confortáveis no enquadramento vertical:
+    // Com FOV vertical de 40°, a largura visível é 2 * dist * tan(20°) * aspect ≈ 0.728 * dist * aspect.
+    // Para uma largura visual segura de ~8.4 unidades: dist = 8.4 / (0.728 * aspect) ≈ 11.54 / aspect.
+    const safeAspect = Math.max(0.35, aspect);
+    const mobileVotingDist = isPortrait ? Math.max(14, 8.4 / (0.728 * safeAspect)) : 5.35;
+    const mobileScreenDist = isPortrait ? Math.max(7, 4.6 / (0.728 * safeAspect)) : 3.6;
+    const mobileKeypadDist = isPortrait ? Math.max(6.5, 4.2 / (0.728 * safeAspect)) : 3.35;
 
     switch (preset) {
       case 'screen':
         return {
           pos: new THREE.Vector3(
             -1.22,
-            1.75 * (isPortrait ? portraitScale * 0.78 : 1),
-            3.6 * (isPortrait ? portraitScale * 0.78 : 1)
+            isPortrait ? 1.35 : 1.75,
+            mobileScreenDist
           ),
           target: new THREE.Vector3(-1.22, -0.1, 1.15),
         };
@@ -45,26 +53,26 @@ const CameraRig: React.FC<CameraRigProps> = ({ controlsRef }) => {
         return {
           pos: new THREE.Vector3(
             1.88,
-            1.45 * (isPortrait ? portraitScale * 0.75 : 1),
-            3.35 * (isPortrait ? portraitScale * 0.75 : 1)
+            isPortrait ? 1.15 : 1.45,
+            mobileKeypadDist
           ),
           target: new THREE.Vector3(1.88, -0.45, 1.25),
         };
       case 'back':
         return {
           pos: new THREE.Vector3(
-            0.35,
+            0,
             0.65,
-            -5.6 * (isPortrait ? portraitScale * 0.85 : 1)
+            isPortrait ? -mobileVotingDist * 0.95 : -5.6
           ),
           target: new THREE.Vector3(0, -0.15, -1.5),
         };
       case 'free360':
         return {
           pos: new THREE.Vector3(
-            -3.8 * portraitScale * 0.85,
-            2.4,
-            5.2 * portraitScale * 0.85
+            isPortrait ? -mobileVotingDist * 0.55 : -3.8,
+            isPortrait ? mobileVotingDist * 0.22 : 2.4,
+            isPortrait ? mobileVotingDist * 0.82 : 5.2
           ),
           target: new THREE.Vector3(0, -0.2, 0.2),
         };
@@ -72,13 +80,13 @@ const CameraRig: React.FC<CameraRigProps> = ({ controlsRef }) => {
       default:
         return {
           pos: new THREE.Vector3(
-            isPortrait ? -0.25 : isDesktopWithDrawer ? -0.2 : -0.65,
-            (isPortrait ? 2.45 : 2.15) * portraitScale * 0.92,
-            (isDesktopWithDrawer ? 5.75 : 5.35) * portraitScale
+            isPortrait ? 0 : isDesktopWithDrawer ? -0.2 : -0.65,
+            isPortrait ? Math.min(5.5, mobileVotingDist * 0.2) : 2.15,
+            isPortrait ? mobileVotingDist : isDesktopWithDrawer ? 5.75 : 5.35
           ),
           target: new THREE.Vector3(
-            isPortrait ? 0.05 : isDesktopWithDrawer ? 0.85 : 0.15,
-            isPortrait ? -0.45 : -0.22,
+            isPortrait ? 0 : isDesktopWithDrawer ? 0.85 : 0.15,
+            isPortrait ? -0.32 : -0.22,
             0.75
           ),
         };
@@ -140,12 +148,12 @@ export const Scene3D: React.FC = () => {
       <Canvas
         shadows
         dpr={[1, 2]}
-        camera={{ position: [-0.65, 2.15, 5.35], fov: 40, near: 0.1, far: 100 }}
+        camera={{ position: [-0.65, 2.15, 5.35], fov: 40, near: 0.1, far: 140 }}
         gl={{ antialias: true, powerPreference: 'high-performance' }}
       >
         {/* Ambiente fixo no modo Estúdio com identidade visual Brasil */}
         <color attach="background" args={['#082052']} />
-        <fog attach="fog" args={['#082052', 15, 35]} />
+        <fog attach="fog" args={['#082052', 45, 120]} />
 
         {/* Iluminação de Estúdio PBR intensa em 360° (frente e traseira) */}
         <ambientLight intensity={1.15} />
@@ -220,8 +228,8 @@ export const Scene3D: React.FC = () => {
           enableRotate={true}
           autoRotate={cameraPreset === 'free360'}
           autoRotateSpeed={1.6}
-          minDistance={2.2}
-          maxDistance={14}
+          minDistance={0.8}
+          maxDistance={45}
           maxPolarAngle={Math.PI / 2 + 0.05}
           minPolarAngle={0.15}
           dampingFactor={0.07}
