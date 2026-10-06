@@ -5,7 +5,7 @@ export const PORTFOLIO_CONFIG = {
   authorName: 'Adriano Angeli',
   authorRole: 'Engenheiro de Software | Inteligência Artificial',
   linkedinUrl: 'https://www.linkedin.com/in/',
-  githubUrl: 'https://github.com/',
+  githubUrl: 'https://github.com/angeliadriano/simulador3D-UrnaEletronica',
   projectTitle: 'Simulador 3D — Urna Eletrônica Brasileira',
   techHighlights: [
     'Geometria 3D PBR fiel à Urna Eletrônica em React Three Fiber (Three.js)',
